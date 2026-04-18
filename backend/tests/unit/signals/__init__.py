@@ -1,0 +1,1 @@
+"""Signal calculator unit tests"""

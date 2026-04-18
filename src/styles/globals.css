@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+    --radius: 0.75rem;
+
+    /* Taiwan stock colors */
+    --stock-up: 0 84% 60%;
+    --stock-down: 142 71% 45%;
+    --stock-flat: 48 96% 53%;
+    --stock-up-bg: 0 86% 97%;
+    --stock-down-bg: 138 76% 97%;
+    --stock-flat-bg: 48 100% 96%;
+
+    /* Chart colors */
+    --chart-grid: 214 32% 91%;
+    --chart-text: 215 16% 47%;
+    --chart-border: 214 32% 91%;
+
+    /* Signal colors */
+    --signal-bullish: 0 84% 60%;
+    --signal-bearish: 142 71% 45%;
+    --signal-neutral: 48 96% 53%;
+  }
+
+  .dark {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 210 40% 80%;
+
+    /* Taiwan stock colors (dark mode) */
+    --stock-up: 0 72% 51%;
+    --stock-down: 142 64% 40%;
+    --stock-flat: 48 89% 50%;
+    --stock-up-bg: 0 60% 12%;
+    --stock-down-bg: 142 50% 10%;
+    --stock-flat-bg: 48 50% 10%;
+
+    /* Chart colors (dark mode) */
+    --chart-grid: 217 33% 20%;
+    --chart-text: 215 20% 65%;
+    --chart-border: 217 33% 20%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

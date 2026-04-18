@@ -1,0 +1,57 @@
+{
+  "stock_id": "2330",
+  "stock_name": "台積電",
+  "timestamp": "2026-04-09T10:30:00+08:00",
+  "price": {
+    "open": 891,
+    "high": 910,
+    "low": 888,
+    "close": 905,
+    "prev_close": 880
+  },
+  "volume": {
+    "total": 50000,
+    "outer": 36000,
+    "inner": 14000
+  },
+  "order_book": {
+    "bid": [
+      {"price": 904, "qty": 500},
+      {"price": 903, "qty": 450},
+      {"price": 902, "qty": 400},
+      {"price": 901, "qty": 350},
+      {"price": 900, "qty": 300}
+    ],
+    "ask": [
+      {"price": 905, "qty": 50},
+      {"price": 906, "qty": 45},
+      {"price": 907, "qty": 40},
+      {"price": 908, "qty": 35},
+      {"price": 909, "qty": 30}
+    ]
+  },
+  "ticks": [
+    {"time": "10:29:50", "price": 905, "qty": 5, "direction": "buy"},
+    {"time": "10:29:48", "price": 904, "qty": 3, "direction": "buy"},
+    {"time": "10:29:45", "price": 904, "qty": 7, "direction": "buy"},
+    {"time": "10:29:42", "price": 903, "qty": 2, "direction": "sell"},
+    {"time": "10:29:40", "price": 903, "qty": 4, "direction": "buy"},
+    {"time": "10:29:38", "price": 902, "qty": 6, "direction": "buy"},
+    {"time": "10:29:35", "price": 902, "qty": 3, "direction": "buy"},
+    {"time": "10:29:32", "price": 901, "qty": 5, "direction": "buy"},
+    {"time": "10:29:30", "price": 901, "qty": 2, "direction": "sell"},
+    {"time": "10:29:28", "price": 900, "qty": 4, "direction": "buy"}
+  ],
+  "technical": {
+    "rsi_14": 68.5,
+    "macd": {
+      "dif": 3.2,
+      "macd": 2.1,
+      "osc": 1.1
+    },
+    "kd": {
+      "k": 75.2,
+      "d": 68.3
+    }
+  }
+}

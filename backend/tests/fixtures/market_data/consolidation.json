@@ -1,0 +1,45 @@
+{
+  "stock_id": "2454",
+  "stock_name": "聯發科",
+  "timestamp": "2026-04-09T13:00:00+08:00",
+  "price": {
+    "open": 1055,
+    "high": 1058,
+    "low": 1052,
+    "close": 1056,
+    "prev_close": 1055
+  },
+  "volume": {
+    "total": 20000,
+    "outer": 10500,
+    "inner": 9500
+  },
+  "order_book": {
+    "bid": [
+      {"price": 1055, "qty": 100},
+      {"price": 1054, "qty": 110},
+      {"price": 1053, "qty": 120},
+      {"price": 1052, "qty": 130},
+      {"price": 1051, "qty": 140}
+    ],
+    "ask": [
+      {"price": 1056, "qty": 105},
+      {"price": 1057, "qty": 115},
+      {"price": 1058, "qty": 125},
+      {"price": 1059, "qty": 135},
+      {"price": 1060, "qty": 145}
+    ]
+  },
+  "technical": {
+    "rsi_14": 49.5,
+    "macd": {
+      "dif": 0.1,
+      "macd": 0.2,
+      "osc": -0.1
+    },
+    "kd": {
+      "k": 51.2,
+      "d": 49.8
+    }
+  }
+}
