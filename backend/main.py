@@ -71,16 +71,27 @@ async def lifespan(app: FastAPI):
     # === Startup ===
     logger.info("Starting 台股實驗預測及模擬倉 backend...")
 
-    # 1. Initialize database
+    # 1. Ensure data directory exists (for SQLite)
+    db_url = settings.DATABASE_URL
+    if "sqlite" in db_url:
+        import re
+        m = re.search(r"sqlite.*:///(.+)", db_url)
+        if m:
+            db_path = os.path.dirname(m.group(1))
+            if db_path:
+                os.makedirs(db_path, exist_ok=True)
+                logger.info(f"Ensured data directory: {db_path}")
+
+    # 2. Initialize database
     await init_database()
     logger.info("Database initialized")
 
-    # 2. Create default user account
+    # 3. Create default user account
     async with AsyncSessionLocal() as db:
         await portfolio_service.ensure_default_account(db)
     logger.info("Default account ensured")
 
-    # 3. Start scheduler
+    # 4. Start scheduler
     scheduler.add_job(
         verify_predictions_job,
         "interval",
@@ -96,7 +107,7 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Scheduler started")
 
-    # 4. Start WebSocket heartbeat
+    # 5. Start WebSocket heartbeat
     await ws_manager.start_heartbeat()
     logger.info("WebSocket heartbeat started")
 
