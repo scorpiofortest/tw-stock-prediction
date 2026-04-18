@@ -36,6 +36,64 @@
 - 切換不同時間維度查看不同區間的預測
 - AI 分析直接從您的瀏覽器呼叫 Gemini API
 
+## 一鍵部署（Fork 後自己架設）
+
+只需 Fork 本專案，即可免費部署屬於自己的台股分析平台。
+
+### 架構說明
+
+| 元件 | 平台 | 用途 | 費用 |
+|------|------|------|------|
+| 前端 | Netlify | 靜態網站（Next.js 匯出） | 免費 |
+| 後端 | Render | API 伺服器（股票數據、訊號） | 免費 |
+
+### Step 1：Fork 專案
+
+點擊 GitHub 頁面右上角的 **Fork** 按鈕，將專案複製到你的帳號下。
+
+### Step 2：部署後端到 Render
+
+1. 前往 [Render](https://render.com)，用 GitHub 帳號登入
+2. 點擊 **New → Web Service**
+3. 連結你 Fork 的 repo
+4. Render 會自動偵測 `render.yaml`，確認設定：
+   - **Name**：自訂（如 `my-tw-stock-api`）
+   - **Root Directory**：`backend`
+   - **Runtime**：Python
+   - **Build Command**：`pip install -r requirements.txt`
+   - **Start Command**：`uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Plan**：Free
+5. 點擊 **Create Web Service**，等待部署完成
+6. 記下你的後端 URL（如 `https://my-tw-stock-api.onrender.com`）
+
+### Step 3：部署前端到 Netlify
+
+1. 前往 [Netlify](https://app.netlify.com)，用 GitHub 帳號登入
+2. 點擊 **Add new site → Import an existing project**
+3. 選擇你 Fork 的 repo
+4. 確認建置設定（會自動從 `netlify.toml` 讀取）：
+   - **Build command**：`npm run build`
+   - **Publish directory**：`out`
+5. **重要！** 在 **Environment variables** 中新增：
+   - `NEXT_PUBLIC_API_URL` = `https://你的render名稱.onrender.com/api/v1`
+6. 點擊 **Deploy site**
+
+### Step 4：設定 Gemini API Key
+
+1. 部署完成後，打開你的 Netlify 網站
+2. 進入「設定」頁面
+3. 填入你的 [Gemini API Key](https://aistudio.google.com/apikey)
+4. API Key 僅存在你的瀏覽器中，不會上傳到任何伺服器
+
+### 注意事項
+
+- **Render 免費方案**會在 15 分鐘無流量後休眠，首次訪問需等約 30 秒啟動
+- **Netlify 免費方案**每月 100GB 流量、300 分鐘建置時間，個人使用完全足夠
+- 後端更新：push 到 `main` 分支後 Render 會自動重新部署
+- 前端更新：push 到 `main` 分支後 Netlify 會自動重新建置
+
+---
+
 ## 本地開發
 
 ### 前端
