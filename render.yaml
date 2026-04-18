@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: tw-stock-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        value: "sqlite+aiosqlite:///./data/twstock.db"
+    plan: free
+    autoDeploy: true
