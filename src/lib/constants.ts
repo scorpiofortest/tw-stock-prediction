@@ -112,7 +112,7 @@ export const NAV_ITEMS = [
   { label: '設定', href: '/settings', icon: 'Settings' },
 ] as const
 
-export const INITIAL_CAPITAL = 1000000
+export const INITIAL_CAPITAL = 10000000
 export const FEE_RATE = 0.001425
 export const FEE_DISCOUNT = 0.6
 export const MIN_FEE = 20

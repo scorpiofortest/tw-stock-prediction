@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     QUOTE_INTERVAL: int = 5
 
     # Portfolio
-    INITIAL_CAPITAL: float = 1_000_000
+    INITIAL_CAPITAL: float = 10_000_000
     FEE_RATE: float = 0.001425
     FEE_DISCOUNT: float = 0.6
     TAX_RATE: float = 0.003
