@@ -544,7 +544,7 @@ class QuoteService:
             return fundamentals
 
         except Exception as e:
-            logger.debug(f"Failed to get fundamentals for {stock_id}: {e}")
+            logger.warning(f"Failed to get fundamentals for {stock_id}: {e}")
             return {}
 
     async def get_history(self, stock_id: str, period: str = "3mo") -> list[dict]:

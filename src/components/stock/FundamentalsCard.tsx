@@ -25,7 +25,9 @@ function Row({ label, value }: { label: string; value: string | number }) {
 }
 
 export function FundamentalsCard({ data }: FundamentalsCardProps) {
-  if (!data) {
+  const isEmpty = !data || Object.keys(data).length === 0 ||
+    (!data.pe && !data.pb && !data.eps && !data.dividend_yield && !data.market_cap && !data.beta && !data.sector)
+  if (isEmpty) {
     return (
       <Card>
         <CardHeader className="pb-3">

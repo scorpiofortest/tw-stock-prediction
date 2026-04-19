@@ -67,11 +67,15 @@ function extractFinalAnswer(text: string): { reasoning: string; aiScore: number 
     return out.join('\n').trim()
   }
 
-  // Clean all paragraphs and join non-empty ones
+  // Clean all paragraphs, deduplicate, and join non-empty ones
+  const seen = new Set<string>()
   const cleanedParagraphs: string[] = []
   for (const para of paragraphs) {
     const cleaned = cleanParagraph(para)
-    if (cleaned) cleanedParagraphs.push(cleaned)
+    if (cleaned && !seen.has(cleaned)) {
+      seen.add(cleaned)
+      cleanedParagraphs.push(cleaned)
+    }
   }
 
   if (cleanedParagraphs.length > 0) {
