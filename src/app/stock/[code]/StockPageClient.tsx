@@ -29,8 +29,18 @@ import type { Timeframe } from '@/types/stock'
 
 export default function StockPageClient() {
   const params = useParams()
-  const code = params.code as string
+  const paramCode = params.code as string
+  const [code, setCode] = useState(paramCode)
   const [horizon, setHorizon] = useState<Timeframe>('1w')
+
+  // Static export fix: Netlify rewrites may serve a pre-rendered stock page,
+  // causing useParams() to return the wrong code. Read from URL directly.
+  useEffect(() => {
+    const match = window.location.pathname.match(/\/stock\/([^/]+)/)
+    if (match && match[1] !== code) {
+      setCode(match[1])
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { setCurrentStock, prediction } = useStockStore()
   const { favoriteStocks, addFavorite, removeFavorite } = useUIStore()
