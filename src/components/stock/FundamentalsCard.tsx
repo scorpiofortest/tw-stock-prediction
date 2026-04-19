@@ -75,6 +75,40 @@ export function FundamentalsCard({ data }: FundamentalsCardProps) {
             value={data.industry ? `${data.sector} · ${data.industry}` : data.sector}
           />
         )}
+
+        {/* 配息資訊 */}
+        {data.has_dividend != null && (
+          <>
+            <div className="border-t my-2" />
+            <Row label="是否配息" value={data.has_dividend ? '是' : '否'} />
+          </>
+        )}
+        {data.has_dividend && data.last_dividend_date && (
+          <Row
+            label="上次配息"
+            value={`${data.last_dividend_amount ?? 0} 元 (${data.last_dividend_date})`}
+          />
+        )}
+        {data.has_dividend && data.dividend_months && data.dividend_months.length > 0 && (
+          <Row
+            label="配息月份"
+            value={data.dividend_months.map((m) => `${m}月`).join('、')}
+          />
+        )}
+        {data.has_dividend && (data.dividend_frequency ?? 0) > 0 && (
+          <Row
+            label="配息頻率"
+            value={
+              data.dividend_frequency === 1
+                ? '年配'
+                : data.dividend_frequency === 2
+                ? '半年配'
+                : data.dividend_frequency === 4
+                ? '季配'
+                : `每年 ${data.dividend_frequency} 次`
+            }
+          />
+        )}
       </CardContent>
     </Card>
   )

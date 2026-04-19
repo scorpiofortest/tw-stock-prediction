@@ -45,6 +45,11 @@ export interface Fundamentals {
   beta: number
   sector: string
   industry: string
+  has_dividend?: boolean
+  last_dividend_amount?: number
+  last_dividend_date?: string
+  dividend_frequency?: number
+  dividend_months?: number[]
 }
 
 export interface NewsItem {

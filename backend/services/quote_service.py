@@ -533,6 +533,35 @@ class QuoteService:
             else:
                 div_yield = round(raw_yield, 2)
 
+            # --- Dividend history ---
+            dividend_info = {
+                "has_dividend": False,
+                "last_dividend_amount": 0,
+                "last_dividend_date": "",
+                "dividend_frequency": 0,
+                "dividend_months": [],
+            }
+            try:
+                divs = t.dividends
+                if divs is not None and len(divs) > 0:
+                    dividend_info["has_dividend"] = True
+                    # Last dividend
+                    last_date = divs.index[-1]
+                    dividend_info["last_dividend_amount"] = round(float(divs.iloc[-1]), 4)
+                    dividend_info["last_dividend_date"] = last_date.strftime("%Y-%m-%d")
+                    # Frequency & months from last 3 years
+                    from datetime import datetime, timedelta
+                    cutoff = datetime.now() - timedelta(days=365 * 3)
+                    recent = divs[divs.index >= cutoff.strftime("%Y-%m-%d")]
+                    if len(recent) > 0:
+                        months = sorted(set(d.month for d in recent.index))
+                        dividend_info["dividend_months"] = months
+                        # Estimate annual frequency
+                        years_span = max((recent.index[-1] - recent.index[0]).days / 365, 1)
+                        dividend_info["dividend_frequency"] = round(len(recent) / years_span)
+            except Exception:
+                pass  # dividend data not available for some tickers
+
             fundamentals = {
                 "pe": _safe("trailingPE"),
                 "forward_pe": _safe("forwardPE"),
@@ -545,6 +574,7 @@ class QuoteService:
                 "beta": _safe("beta"),
                 "sector": raw.get("sector", "") or "",
                 "industry": raw.get("industry", "") or "",
+                **dividend_info,
             }
             stock_info_cache[cache_key] = fundamentals
             return fundamentals

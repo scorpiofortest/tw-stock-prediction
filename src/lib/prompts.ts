@@ -133,6 +133,20 @@ export function formatFundamentals(fundamentals?: Partial<Fundamentals> | null):
   if (f.pb) lines.push(`股價淨值比(PB)：${f.pb}`)
   if (f.eps) lines.push(`EPS(TTM)：${f.eps}`)
   if (f.dividend_yield) lines.push(`殖利率：${f.dividend_yield}%`)
+  if (f.has_dividend != null) {
+    if (f.has_dividend) {
+      let divLine = '配息：有'
+      if (f.last_dividend_amount && f.last_dividend_date) {
+        divLine += `（上次 ${f.last_dividend_date} 配 ${f.last_dividend_amount} 元）`
+      }
+      if (f.dividend_months && f.dividend_months.length > 0) {
+        divLine += `，月份：${f.dividend_months.map((m) => `${m}月`).join('、')}`
+      }
+      lines.push(divLine)
+    } else {
+      lines.push('配息：無')
+    }
+  }
   if (f.week_52_high && f.week_52_low) {
     lines.push(`52週區間：${f.week_52_low} ~ ${f.week_52_high}`)
   }
