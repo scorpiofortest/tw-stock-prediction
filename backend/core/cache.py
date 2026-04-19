@@ -17,5 +17,8 @@ stock_info_cache: TTLCache = TTLCache(maxsize=2000, ttl=86400)
 # Historical data cache: max 100, 1-hour TTL
 history_cache: TTLCache = TTLCache(maxsize=100, ttl=3600)
 
+# Rate-limit cooldown cache: max 100, 5-minute TTL
+rate_limit_cache: TTLCache = TTLCache(maxsize=100, ttl=300)
+
 # TWSE institutional/margin data cache: max 500, 12-hour TTL (updates once after market close)
 twse_cache: TTLCache = TTLCache(maxsize=500, ttl=43200)

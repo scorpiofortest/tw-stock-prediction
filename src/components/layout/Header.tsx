@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 export function Header() {
-  const { toggleSidebar } = useUIStore()
+  const { toggleMobileSidebar } = useUIStore()
   const { theme, setTheme } = useTheme()
   const { aiEnabled } = useSettingsStore()
   const hasKey = useSettingsStore((s) => s.geminiApiKey.trim().length > 0)
@@ -20,7 +20,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
-      <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
+      <Button variant="ghost" size="icon" onClick={toggleMobileSidebar} className="lg:hidden">
         <Menu className="h-5 w-5" />
       </Button>
 
