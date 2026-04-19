@@ -48,8 +48,8 @@ export function PredictionHistory({ records, isLoading }: PredictionHistoryProps
           <TableHead>預測方向</TableHead>
           <TableHead>區間</TableHead>
           <TableHead className="text-right">信心值</TableHead>
-          <TableHead className="text-right">預測價</TableHead>
-          <TableHead className="text-right">驗證價</TableHead>
+          <TableHead className="text-right">建立時股價</TableHead>
+          <TableHead className="text-right">驗證時股價</TableHead>
           <TableHead className="text-right">漲跌幅</TableHead>
           <TableHead className="text-center">狀態</TableHead>
         </TableRow>

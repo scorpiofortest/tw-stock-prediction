@@ -72,7 +72,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
         const prev = state.holdings[stock_id]
         const newShares = (prev?.shares || 0) + shares
         const prevCost = (prev?.shares || 0) * (prev?.avg_cost || 0)
-        const newAvgCost = (prevCost + amount) / newShares
+        const newAvgCost = (prevCost + totalCost) / newShares  // includes buy fee
 
         set({
           currentCash: state.currentCash - totalCost,
@@ -179,11 +179,19 @@ export const usePortfolioStore = create<PortfolioStore>()(
         const pm = priceMap || {}
 
         return Object.entries(state.holdings).map(([stockId, h]) => {
-          const currentPrice = pm[stockId] || h.avg_cost
-          const totalCost = h.avg_cost * h.shares
-          const currentValue = currentPrice * h.shares
-          const unrealizedPnl = currentValue - totalCost
-          const unrealizedPnlPct = totalCost > 0
+          const currentPrice = pm[stockId] || 0
+          const totalCost = h.avg_cost * h.shares  // avg_cost includes buy fee
+          const marketValue = currentPrice * h.shares
+
+          // Estimated sell costs
+          const estSellFee = currentPrice > 0 ? calcFee(marketValue) : 0
+          const estSellTax = currentPrice > 0 ? calcTax(marketValue) : 0
+          const netProceeds = marketValue - estSellFee - estSellTax
+
+          const unrealizedPnl = currentPrice > 0
+            ? netProceeds - totalCost
+            : 0
+          const unrealizedPnlPct = totalCost > 0 && currentPrice > 0
             ? (unrealizedPnl / totalCost) * 100
             : 0
 
@@ -192,7 +200,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
             stock_name: h.stock_name,
             shares: h.shares,
             avg_cost: Math.round(h.avg_cost * 100) / 100,
-            current_price: currentPrice,
+            current_price: currentPrice || h.avg_cost,
             total_cost: Math.round(totalCost),
             unrealized_pnl: Math.round(unrealizedPnl),
             unrealized_pnl_pct: Math.round(unrealizedPnlPct * 100) / 100,
