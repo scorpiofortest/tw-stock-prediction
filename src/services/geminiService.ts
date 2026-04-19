@@ -6,8 +6,17 @@ const BULLET_PREFIXES = ['*', '-', '#', '>', '•']
 const THINKING_KEYWORDS = [
   'draft ', 'question:', 'target:', 'language:', 'constraint:',
   'stock code:', 'company:', 'analysis:', 'reasoning:',
-  'final answer:', 'answer:', 'output:',
+  'final answer:', 'answer:', 'output:', 'my draft', 'total ',
+  'professional', 'next ', 'tsmc', 'i ', 'the ', 'this ',
+  'key ', 'note:', 'summary:', 'score:', 'covers:',
 ]
+
+// Check if a line contains Chinese/Japanese/Korean characters
+const CJK_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/
+
+function hasCJK(text: string): boolean {
+  return CJK_REGEX.test(text)
+}
 
 function extractAiScore(text: string): number | null {
   const match = SCORE_PATTERN.exec(text)
@@ -51,6 +60,8 @@ function extractFinalAnswer(text: string): { reasoning: string; aiScore: number 
       if (BULLET_PREFIXES.some((p) => stripped.startsWith(p))) continue
       const lower = stripped.toLowerCase()
       if (THINKING_KEYWORDS.some((k) => lower.startsWith(k))) continue
+      // Filter lines that have no CJK characters (likely English metadata/thinking)
+      if (!hasCJK(stripped)) continue
       out.push(stripped)
     }
     return out.join('\n').trim()

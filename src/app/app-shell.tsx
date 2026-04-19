@@ -1,15 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { StatusBar } from '@/components/layout/StatusBar'
 import { useTheme } from '@/hooks/useTheme'
+import { getWSManager } from '@/lib/websocket'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   // Initialize theme
   useTheme()
+
+  const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected')
+
+  useEffect(() => {
+    const ws = getWSManager()
+    const unsub = ws.onStatusChange(setWsStatus)
+    return unsub
+  }, [])
 
   return (
     <div className="flex h-screen flex-col">
@@ -20,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mx-auto max-w-7xl p-4 lg:p-6">{children}</div>
         </main>
       </div>
-      <StatusBar wsStatus="disconnected" />
+      <StatusBar wsStatus={wsStatus} />
       <MobileNav />
     </div>
   )
