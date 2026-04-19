@@ -3,10 +3,10 @@
 import asyncio
 import re
 from urllib.parse import quote
-from urllib.request import Request, urlopen
 from datetime import datetime
 from typing import Optional
 
+import httpx
 import feedparser
 from loguru import logger
 from cachetools import TTLCache
@@ -15,17 +15,23 @@ from cachetools import TTLCache
 # 15-minute cache per stock
 news_cache: TTLCache = TTLCache(maxsize=500, ttl=900)
 
-# Google blocks requests from datacenter IPs without a browser User-Agent
-_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/125.0.0.0 Safari/537.36"
-)
+# Full browser-like headers to avoid Google 503 blocks on datacenter IPs
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/125.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate",
+    "Connection": "keep-alive",
+    "DNT": "1",
+}
 
 
 def _clean_title(title: str) -> str:
     """Remove source suffix Google News adds (e.g. ' - 經濟日報')."""
-    # Google News often appends " - Source Name" to titles
     title = re.sub(r"\s*-\s*[^-]+$", "", title).strip()
     return title
 
@@ -34,7 +40,6 @@ def _extract_source(entry) -> str:
     """Extract source name from a feedparser entry."""
     if hasattr(entry, "source") and hasattr(entry.source, "title"):
         return entry.source.title
-    # Fallback: parse from title tail
     title = entry.get("title", "")
     m = re.search(r"\s*-\s*([^-]+)$", title)
     if m:
@@ -47,7 +52,6 @@ def _format_published(published_str: str) -> str:
     if not published_str:
         return ""
     try:
-        # Google News RSS format: "Wed, 09 Apr 2026 14:32:00 GMT"
         dt = datetime.strptime(published_str, "%a, %d %b %Y %H:%M:%S %Z")
         return dt.strftime("%m/%d %H:%M")
     except Exception:
@@ -68,6 +72,7 @@ class NewsService:
 
         Query pattern: "{stock_id} {stock_name}" (e.g. "2330 台積電")
         - Uses Google News RSS (no API key required)
+        - httpx async client with browser-like headers
         - 15-minute cache per stock
         - Returns up to `limit` items
         """
@@ -75,7 +80,6 @@ class NewsService:
         if cache_key in news_cache:
             return news_cache[cache_key]
 
-        # Build query: code + name for better relevance
         query_parts = [stock_id]
         if stock_name and stock_name != stock_id:
             query_parts.append(stock_name)
@@ -87,16 +91,14 @@ class NewsService:
         )
 
         try:
-            # feedparser is sync — run in executor to avoid blocking.
-            # We fetch via urllib with a browser User-Agent first,
-            # because Google blocks default feedparser requests from datacenter IPs.
-            def _fetch_and_parse():
-                req = Request(url, headers={"User-Agent": _USER_AGENT})
-                with urlopen(req, timeout=10) as resp:
-                    return feedparser.parse(resp.read())
-
-            loop = asyncio.get_event_loop()
-            feed = await loop.run_in_executor(None, _fetch_and_parse)
+            async with httpx.AsyncClient(
+                headers=_HEADERS,
+                follow_redirects=True,
+                timeout=15.0,
+            ) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                feed = feedparser.parse(resp.text)
 
             if not feed.entries:
                 logger.debug(f"No news found for {stock_id} ({stock_name})")
