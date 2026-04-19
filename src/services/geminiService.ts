@@ -27,14 +27,20 @@ function extractAiScore(text: string): number | null {
   return null
 }
 
+/** Get a fingerprint for fuzzy deduplication (first 30 CJK characters) */
+function fingerprint(text: string): string {
+  const cjk = text.replace(/[^\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g, '')
+  return cjk.slice(0, 30)
+}
+
 function extractFinalAnswer(text: string): { reasoning: string; aiScore: number | null } {
   if (!text) return { reasoning: '', aiScore: null }
 
   const raw = text.trim()
   const aiScore = extractAiScore(raw)
 
-  // Remove [SCORE:X] tag from text
-  const cleanedRaw = raw.replace(SCORE_PATTERN, '').trim()
+  // Remove ALL [SCORE:X] tags from text (may appear multiple times)
+  const cleanedRaw = raw.replace(/\[SCORE:\s*[+-]?\d+\]/g, '').trim()
 
   // Split into paragraphs separated by blank lines
   const paragraphs = cleanedRaw.split(/\n\s*\n/).filter((p) => p.trim())
@@ -44,6 +50,10 @@ function extractFinalAnswer(text: string): { reasoning: string; aiScore: number 
     const out: string[] = []
     for (const line of para.split('\n')) {
       let stripped = line.trim()
+      if (!stripped) continue
+
+      // Remove any inline [SCORE:X] tags
+      stripped = stripped.replace(/\[SCORE:\s*[+-]?\d+\]/g, '').trim()
       if (!stripped) continue
 
       // Strip surrounding quotes
@@ -67,19 +77,21 @@ function extractFinalAnswer(text: string): { reasoning: string; aiScore: number 
     return out.join('\n').trim()
   }
 
-  // Clean all paragraphs, deduplicate, and join non-empty ones
-  const seen = new Set<string>()
+  // Clean all paragraphs, deduplicate using fuzzy fingerprint, and join non-empty ones
+  const seenFingerprints = new Set<string>()
   const cleanedParagraphs: string[] = []
   for (const para of paragraphs) {
     const cleaned = cleanParagraph(para)
-    if (cleaned && !seen.has(cleaned)) {
-      seen.add(cleaned)
-      cleanedParagraphs.push(cleaned)
-    }
+    if (!cleaned) continue
+    const fp = fingerprint(cleaned)
+    if (fp.length > 0 && seenFingerprints.has(fp)) continue  // fuzzy duplicate
+    if (fp.length > 0) seenFingerprints.add(fp)
+    cleanedParagraphs.push(cleaned)
   }
 
+  // If we have cleaned paragraphs, only take the first one (avoid repetitions)
   if (cleanedParagraphs.length > 0) {
-    return { reasoning: cleanedParagraphs.join('\n\n'), aiScore }
+    return { reasoning: cleanedParagraphs[0], aiScore }
   }
 
   return { reasoning: cleanedRaw, aiScore }
