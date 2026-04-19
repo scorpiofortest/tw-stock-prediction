@@ -17,20 +17,24 @@ export interface PredictionResult {
 }
 
 export interface PredictionRecord {
-  id: string
-  date: string
-  stockCode: string
-  stockName: string
-  predictedDirection: Direction
-  confidence: number
-  priceAtPrediction: number
-  priceAtVerify?: number
-  actualChange?: number
-  isCorrect?: boolean
+  id: number
+  stock_id: string
+  stock_name: string
+  predicted_at: string
+  predicted_direction: string  // 'up' | 'down' | 'flat'
+  predicted_confidence: number
+  price_at_prediction: number
+  signal_score?: number
+  ai_involved: boolean
+  horizon: string
+  horizon_label: string
+  verify_after?: string
+  verify_at?: string
+  price_at_verify?: number
+  actual_direction?: string
+  price_change_pct?: number
   status: 'pending' | 'verified' | 'expired'
-  horizon?: string
-  horizonLabel?: string
-  verifyAfter?: string
+  is_correct?: boolean | null
 }
 
 export interface VerificationResult {

@@ -127,7 +127,20 @@ export function usePredictionHistory(params?: {
 }) {
   return useQuery({
     queryKey: ['predictionHistory', params],
-    queryFn: () => predictionService.getHistory(params),
+    queryFn: async () => {
+      const res = await fetch(
+        `${(await import('@/lib/constants')).API_BASE_URL}/predictions/history?page=${params?.page || '1'}&page_size=${params?.pageSize || '20'}${params?.stockCode ? `&stock_id=${params.stockCode}` : ''}`,
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      const json = await res.json()
+      return {
+        items: json.data || [],
+        total: json.pagination?.total || 0,
+        page: json.pagination?.page || 1,
+        pageSize: json.pagination?.page_size || 20,
+        totalPages: json.pagination?.total_pages || 0,
+      }
+    },
     staleTime: 30000,
   })
 }
