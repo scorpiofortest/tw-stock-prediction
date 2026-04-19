@@ -1,5 +1,19 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws'
+
+// Derive WS_URL from API_BASE_URL: https://xxx.com/api/v1 → wss://xxx.com/ws
+function deriveWsUrl(): string {
+  if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL
+  try {
+    const base = API_BASE_URL.replace(/\/api\/v\d+$/, '')
+    const url = new URL(base)
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+    url.pathname = '/ws'
+    return url.toString()
+  } catch {
+    return 'ws://localhost:8000/ws'
+  }
+}
+export const WS_URL = deriveWsUrl()
 
 export const SIGNAL_NAMES: Record<string, string> = {
   outer_ratio: '外盤比率',
