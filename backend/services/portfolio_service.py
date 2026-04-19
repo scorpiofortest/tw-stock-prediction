@@ -46,14 +46,17 @@ class PortfolioService:
         return account
 
     async def get_account(self, db: AsyncSession) -> dict:
-        """Get account overview with calculated totals."""
+        """Get account overview with calculated totals (factoring in estimated sell costs)."""
         account = await self.ensure_default_account(db)
         positions = await self.get_positions(db)
 
-        total_stock_value = 0
-        for pos in positions:
-            price = pos.get("current_price", 0) or 0
-            total_stock_value += price * pos["shares"]
+        # Use net proceeds (after estimated sell costs) for stock value
+        total_stock_value = sum(
+            pos.get("market_value", 0) for pos in positions
+        )
+        total_unrealized_pnl = sum(
+            pos.get("unrealized_pnl", 0) for pos in positions
+        )
 
         total_assets = account.current_cash + total_stock_value
         total_pnl = total_assets - account.initial_capital
@@ -67,11 +70,12 @@ class PortfolioService:
             "total_assets": round(total_assets, 2),
             "total_pnl": round(total_pnl, 2),
             "total_pnl_pct": round(total_pnl_pct, 2),
+            "total_unrealized_pnl": round(total_unrealized_pnl, 2),
             "positions_count": len(positions),
         }
 
     async def get_positions(self, db: AsyncSession) -> list[dict]:
-        """Get all positions with current price and unrealized PnL."""
+        """Get all positions with current price and unrealized PnL (including estimated sell costs)."""
         account = await self.ensure_default_account(db)
         result = await db.execute(
             select(Position).where(Position.user_id == account.id)
@@ -81,7 +85,15 @@ class PortfolioService:
         for pos in positions:
             current_price = await self.quote_service.get_price(pos.stock_id)
             market_value = current_price * pos.shares
-            unrealized_pnl = market_value - pos.total_cost
+
+            # Estimated sell costs (commission + securities transaction tax)
+            est_sell_fee = max(market_value * self.FEE_RATE * self.FEE_DISCOUNT, self.MIN_FEE)
+            est_sell_fee = math.floor(est_sell_fee)
+            est_sell_tax = math.floor(market_value * self.TAX_RATE)
+            net_proceeds = market_value - est_sell_fee - est_sell_tax
+
+            # Unrealized PnL = estimated net proceeds - total buy cost (already includes buy fee)
+            unrealized_pnl = net_proceeds - pos.total_cost
             unrealized_pnl_pct = (unrealized_pnl / pos.total_cost * 100) if pos.total_cost else 0
             out.append({
                 "stock_id": pos.stock_id,
@@ -90,6 +102,9 @@ class PortfolioService:
                 "avg_cost": round(pos.avg_cost, 4),
                 "total_cost": round(pos.total_cost, 2),
                 "current_price": current_price,
+                "market_value": round(market_value, 2),
+                "est_sell_fee": est_sell_fee,
+                "est_sell_tax": est_sell_tax,
                 "unrealized_pnl": round(unrealized_pnl, 2),
                 "unrealized_pnl_pct": round(unrealized_pnl_pct, 2),
             })
